@@ -12,12 +12,12 @@ Inspired by the [Invidious](https://github.com/iv-org/invidious), [Nitter](https
 
 ## Current Features
 
-- Direct image loading via https://i.imgur.com/\*
+- Direct image loading via https://i.imgur.com/*
 
 ## Roadmap
 
-- Imgur post loading via https://imgur.com/\*
-- Imgur album loading via https://imgur.com/a/\*
+- Imgur post loading via https://imgur.com/*
+- Imgur album loading via https://imgur.com/a/*
 
 ## Far-future roadmap
 
