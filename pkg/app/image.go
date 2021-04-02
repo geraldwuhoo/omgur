@@ -1,11 +1,14 @@
 package app
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+
+	"github.com/go-redis/redis/v8"
 )
 
 type DirectImage struct {
@@ -34,6 +37,25 @@ func (a *App) DirectImageHandler(w http.ResponseWriter, uri string) {
 }
 
 func (a *App) getImageFromCacheOrRemote(uri string) (*DirectImage, error) {
+	rdb := a.Rdb
+	_, err := rdb.Get(context.Background(), uri).Bytes()
+	if err == redis.Nil {
+		log.Printf("%v not found in redis cache. Pulling from remote.", uri)
+		return a.getImageFromRemote(uri)
+	} else if err != nil {
+		log.Print(err.Error())
+		return nil, &RequestError{
+			StatusCode: http.StatusInternalServerError,
+			Err:        errors.New(uri),
+		}
+	} else {
+		// TODO: Fix Redis
+		return nil, nil
+	}
+
+}
+
+func (a *App) getImageFromRemote(uri string) (*DirectImage, error) {
 	// Get the image directly from i.imgur.com
 	resp, err := http.Get(fmt.Sprintf("https://i.imgur.com/%v", uri))
 
@@ -65,10 +87,15 @@ func (a *App) getImageFromCacheOrRemote(uri string) (*DirectImage, error) {
 		}
 	}
 
-	// Construct and return this direct image
-	return &DirectImage{
+	// Construct image
+	image := &DirectImage{
 		contents:      contents,
 		contentLength: fmt.Sprint(resp.ContentLength),
 		contentType:   resp.Header.Get("Content-Type"),
-	}, nil
+	}
+
+	// TODO: place image into Redis cache
+
+	// Construct and return this direct image
+	return image, nil
 }
