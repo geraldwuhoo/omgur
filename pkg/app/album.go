@@ -1,19 +1,15 @@
-package main
+package app
 
 import (
 	"encoding/json"
 	"fmt"
-	"html/template"
-	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"regexp"
 	"strings"
+	"text/template"
 	"time"
 )
-
-var Authorization string = "Client-ID 546c25a59c58ad7"
 
 type Image struct {
 	Title       string
@@ -27,82 +23,7 @@ type Album struct {
 	Images      []Image
 }
 
-func main() {
-	http.HandleFunc("/", HTTPServer)
-
-	log.Print("Starting webserver on 8080")
-	if err := http.ListenAndServe(":8080", nil); err != nil {
-		log.Fatal(err)
-	}
-}
-
-func HTTPServer(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Serving page for %s", r.URL.Path)
-	uri := r.URL.Path[1:]
-
-	// Security
-	if r.Method != "GET" {
-		http.Error(w, "Method is not supported.", http.StatusNotFound)
-		return
-	}
-
-	// Determine if this is a direct i.imgur.com image
-	directImage, err := regexp.MatchString(".*\\.(jpg|jpeg|png|gif|gifv|apng|tiff|mp4|mpeg|avi|webm)", uri)
-	if err != nil {
-		log.Print(err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-
-	// Determine if this is an imgur.com/a/ album
-	album, err := regexp.MatchString("a/.+", uri)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if directImage {
-		// This is a direct image, so use the direct image handler
-		DirectImageHandler(w, uri)
-	} else if album {
-		// This is an album, so use the album handler
-		AlbumHandler(w, uri)
-	} else {
-		// Future proxying features not yet implemented
-		http.Error(w, "501 Not Implemented", http.StatusNotImplemented)
-		return
-	}
-}
-
-func DirectImageHandler(w http.ResponseWriter, uri string) {
-	// Get the image directly from i.imgur.com
-	resp, err := http.Get(fmt.Sprintf("https://i.imgur.com/%v", uri))
-	if err != nil {
-		log.Print(err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-	defer resp.Body.Close()
-
-	// If we were unable to get this image for any reason, then respond as such
-	if resp.StatusCode != 200 {
-		output := fmt.Sprintf("Error %v looking up %v\n", resp.StatusCode, uri)
-		log.Print(output)
-		http.Error(w, output, resp.StatusCode)
-		return
-	}
-
-	// Successfully got image, so return the proper response as a direct image
-	w.Header().Set("Content-Length", fmt.Sprint(resp.ContentLength))
-	w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
-
-	if _, err = io.Copy(w, resp.Body); err != nil {
-		log.Print(err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-}
-
-func AlbumHandler(w http.ResponseWriter, uri string) {
+func (a App) AlbumHandler(w http.ResponseWriter, uri string) {
 	// Build GET request to Imgur API
 	client := &http.Client{
 		Timeout: time.Second * 10,
@@ -111,7 +32,7 @@ func AlbumHandler(w http.ResponseWriter, uri string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	req.Header.Add("Authorization", Authorization)
+	req.Header.Add("Authorization", a.Authorization)
 
 	// Execute GET request to get Album details
 	resp, err := client.Do(req)
@@ -199,7 +120,7 @@ func AlbumHandler(w http.ResponseWriter, uri string) {
 	}
 
 	// Apply the extracted album to the template
-	t, err := template.ParseFiles("templates/album.gohtml")
+	t, err := template.ParseFiles("web/template/album.gohtml")
 	if err != nil {
 		log.Fatal(err)
 	}
