@@ -13,7 +13,8 @@ RUN go mod init git.geraldwu.com/gerald/omgur &&\
 # Clean image
 FROM docker.io/alpine:latest
 RUN apk --no-cache add ca-certificates
-COPY --from=builder /build .
+COPY --from=builder /build/omgur .
+COPY --from=builder /build/web ./web
 
 USER nobody:nobody
 
