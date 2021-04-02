@@ -11,7 +11,9 @@
     </head>
     <body>
     {{ range .Images }}
-        <img src="{{ . }}">
+        <h2>{{ .Title }}</h2>
+        <h3>{{ .Description }}</h3>
+        <a href="{{ .Link }}"><img src="{{ .Link }}"></a>
     {{ end }}
     </body>
 </html>
