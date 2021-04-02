@@ -20,7 +20,6 @@ Inspired by the [Invidious](https://github.com/iv-org/invidious), [Nitter](https
 - Redis caching for images
 - Imgur post loading via https://imgur.com/
 - Imgur gallery loading via https://imgur.com/gallery
-- Code refactor (current code is very ugly)
 
 ## Far-future roadmap
 
@@ -49,8 +48,8 @@ git clone https://git.geraldwu.com/gerald/omgur
 cd omgur
 go mod init git.geraldwu.com/gerald/omgur
 go mod tidy
-go build -v -a -o app .
-./app
+go build -v -a ./cmd/omgur
+./omgur
 ```
 
 Omgur should now be running at http://localhost:8080.
