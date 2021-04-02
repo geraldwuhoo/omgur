@@ -54,7 +54,6 @@ func (a *App) AlbumHandler(w http.ResponseWriter, uri string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("Imgur response: %v\n", string(contents))
 
 	// Unpack the JSON response into an unstructured Go struct
 	var result map[string]interface{}

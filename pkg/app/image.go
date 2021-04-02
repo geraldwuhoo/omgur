@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -12,9 +13,9 @@ import (
 )
 
 type DirectImage struct {
-	contents      []byte
-	contentLength string
-	contentType   string
+	Contents      []byte
+	ContentLength string
+	ContentType   string
 }
 
 func (a *App) DirectImageHandler(w http.ResponseWriter, uri string) {
@@ -26,10 +27,10 @@ func (a *App) DirectImageHandler(w http.ResponseWriter, uri string) {
 		return
 	}
 	// Successfully got image, so return the proper response as a direct image
-	w.Header().Set("Content-Length", image.contentLength)
-	w.Header().Set("Content-Type", image.contentType)
+	w.Header().Set("Content-Length", image.ContentLength)
+	w.Header().Set("Content-Type", image.ContentType)
 
-	_, err = w.Write(image.contents)
+	_, err = w.Write(image.Contents)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -37,10 +38,12 @@ func (a *App) DirectImageHandler(w http.ResponseWriter, uri string) {
 }
 
 func (a *App) getImageFromCacheOrRemote(uri string) (*DirectImage, error) {
-	rdb := a.Rdb
-	_, err := rdb.Get(context.Background(), uri).Bytes()
+	// Attempt to get from Redis cache
+	image, err := a.Rdb.Get(context.Background(), uri).Result()
+
 	if err == redis.Nil {
-		log.Printf("%v not found in redis cache. Pulling from remote.", uri)
+		// Get from remote if not in cache
+		log.Printf("%v Redis cache miss. Pulling from remote.", uri)
 		return a.getImageFromRemote(uri)
 	} else if err != nil {
 		log.Print(err.Error())
@@ -49,8 +52,18 @@ func (a *App) getImageFromCacheOrRemote(uri string) (*DirectImage, error) {
 			Err:        errors.New(uri),
 		}
 	} else {
-		// TODO: Fix Redis
-		return nil, nil
+		// Unmarshal the Redis object to a DirectImage struct
+		log.Printf("%v Redis cache hit. Serving from Redis.", uri)
+		directImage := &DirectImage{}
+		if err := json.Unmarshal([]byte(image), directImage); err != nil {
+			log.Printf("Error unmarshalling from Redis: %v\n", err.Error())
+			return nil, &RequestError{
+				StatusCode: http.StatusInternalServerError,
+				Err:        errors.New(uri),
+			}
+		}
+
+		return directImage, nil
 	}
 
 }
@@ -89,12 +102,31 @@ func (a *App) getImageFromRemote(uri string) (*DirectImage, error) {
 
 	// Construct image
 	image := &DirectImage{
-		contents:      contents,
-		contentLength: fmt.Sprint(resp.ContentLength),
-		contentType:   resp.Header.Get("Content-Type"),
+		Contents:      contents,
+		ContentLength: fmt.Sprint(resp.ContentLength),
+		ContentType:   resp.Header.Get("Content-Type"),
+	}
+	log.Printf("Got %v from remote\n", uri)
+
+	// Marshall the DirectImage struct to byte array
+	imageMarshall, err := json.Marshal(image)
+	if err != nil {
+		log.Print(err.Error())
+		return nil, &RequestError{
+			StatusCode: http.StatusInternalServerError,
+			Err:        errors.New(uri),
+		}
 	}
 
-	// TODO: place image into Redis cache
+	// Place the marshalled struct into Redis with the uri as the key
+	if err := a.Rdb.Set(context.Background(), uri, imageMarshall, 0).Err(); err != nil {
+		log.Printf("Error setting Redis cache: %v\n", err.Error())
+		return nil, &RequestError{
+			StatusCode: http.StatusInternalServerError,
+			Err:        errors.New(uri),
+		}
+	}
+	log.Printf("Set %v in Redis cache\n", uri)
 
 	// Construct and return this direct image
 	return image, nil
