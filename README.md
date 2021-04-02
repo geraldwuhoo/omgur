@@ -14,10 +14,10 @@ Inspired by the [Invidious](https://github.com/iv-org/invidious), [Nitter](https
 
 - Direct image loading via https://i.imgur.com/
 - Imgur album loading via https://imgur.com/a/
+- Redis caching for images
 
 ## Roadmap
 
-- Redis caching for images
 - Imgur post loading via https://imgur.com/
 - Imgur gallery loading via https://imgur.com/gallery
 
