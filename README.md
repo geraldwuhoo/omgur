@@ -12,12 +12,15 @@ Inspired by the [Invidious](https://github.com/iv-org/invidious), [Nitter](https
 
 ## Current Features
 
-- Direct image loading via https://i.imgur.com/*
+- Direct image loading via https://i.imgur.com/
+- Imgur album loading via https://imgur.com/a/
 
 ## Roadmap
 
-- Imgur post loading via https://imgur.com/*
-- Imgur album loading via https://imgur.com/a/*
+- Redis caching for images
+- Imgur post loading via https://imgur.com/
+- Imgur gallery loading via https://imgur.com/gallery
+- Code refactor (current code is very ugly)
 
 ## Far-future roadmap
 
