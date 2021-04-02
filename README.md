@@ -39,16 +39,22 @@ docker-compose up
 
 Omgur should now be running at http://localhost:8080.
 
+Prebuilt images are also available at `registry.geraldwu.com/gerald/omgur:latest`. See https://git.geraldwu.com/gerald/omgur/container_registry for all images and tags.
+
 ### Manual
 
-1. Install Golang.
-2. Clone and set up the repository.
+1. Install [Golang](https://golang.org/).
+1. (Optional) Install [redis-server](https://redis.io/).
+Caches images from imgur – highly recommended.
+1. Clone and set up the repository.
 ```
 git clone https://git.geraldwu.com/gerald/omgur
 cd omgur
 go mod init git.geraldwu.com/gerald/omgur
 go mod tidy
 go build -v -a ./cmd/omgur
+export REDIS_HOST=localhost
+redis-server
 ./omgur
 ```
 

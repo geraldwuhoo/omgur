@@ -1,9 +1,25 @@
 version: '2'
 
 services:
+  redis:
+    image: redis:6-alpine
+    command: redis-server
+    environment:
+      - REDIS_REPLICATION_MODE=master
+    networks:
+      - omgur_net
   omgur:
     build:
       context: .
     restart: unless-stopped
+    environment:
+      - REDIS_HOST=redis
     ports:
       - 127.0.0.1:8080:8080
+    networks:
+      - omgur_net
+    depends_on:
+      - redis
+
+networks:
+  omgur_net:
