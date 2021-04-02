@@ -10,10 +10,18 @@
         </style>
     </head>
     <body>
+    {{ if .PostTitle }}
+    <h1>{{ .PostTitle }}</h1>
+    <hr>
+    {{ end }}
     {{ range .Images }}
+        {{ if .Title }} 
         <h2>{{ .Title }}</h2>
-        <h3>{{ .Description }}</h3>
+        {{ end }}
         <a href="{{ .Link }}"><img src="{{ .Link }}"></a>
+        {{ if .Description }} 
+        <h3>{{ .Description }}</h3>
+        {{ end }}
     {{ end }}
     </body>
 </html>

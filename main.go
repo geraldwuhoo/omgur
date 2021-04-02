@@ -20,7 +20,8 @@ type Image struct {
 }
 
 type Album struct {
-	Images []Image
+	PostTitle string
+	Images    []Image
 }
 
 func main() {
@@ -103,7 +104,7 @@ func AlbumHandler(w http.ResponseWriter, uri string) {
 	client := &http.Client{
 		Timeout: time.Second * 10,
 	}
-	req, err := http.NewRequest("GET", fmt.Sprintf("https://api.imgur.com/3/album/%v/images", uri[2:]), nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("https://api.imgur.com/3/album/%v", uri[2:]), nil)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -135,38 +136,55 @@ func AlbumHandler(w http.ResponseWriter, uri string) {
 	var result map[string]interface{}
 	json.Unmarshal([]byte(contents), &result)
 
+	// Get parent data in JSON
+	data := result["data"].(map[string]interface{})
+	// Get post title (safely)
+	var postTitle string
+	if data["title"] == nil {
+		postTitle = ""
+	} else {
+		postTitle = data["title"].(string)
+	}
+	// Get images slice
+	images := data["images"].([]interface{})
+
 	// Struct to store the album details in for templating
-	data := Album{
-		Images: []Image{},
+	album := Album{
+		PostTitle: postTitle,
+		Images:    []Image{},
 	}
 	// Loop over the results, and add each album image to the data struct
-	for _, value := range result["data"].([]interface{}) {
+	for _, value := range images {
+		// Assert type of the image JSON data
 		image := value.(map[string]interface{})
 
+		// Get the title (safely)
 		var title string
 		if image["title"] == nil {
-			title = "No title"
+			title = ""
 		} else {
 			title = image["title"].(string)
 		}
 
+		// Get the description (safely)
 		var description string
 		if image["description"] == nil {
-			description = "No description"
+			description = ""
 		} else {
 			description = image["description"].(string)
 		}
 
+		// Get the link and parse the uri
 		link := image["link"].(string)
 		link = link[strings.LastIndex(link, "/"):]
-
 		log.Printf("link: %v\n", link)
-		current_image := Image{
+
+		// Add this image to the overall data
+		album.Images = append(album.Images, Image{
 			Link:        link,
 			Title:       title,
 			Description: description,
-		}
-		data.Images = append(data.Images, current_image)
+		})
 	}
 
 	// Apply the extracted album to the template
@@ -174,7 +192,7 @@ func AlbumHandler(w http.ResponseWriter, uri string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = t.Execute(w, data)
+	err = t.Execute(w, album)
 	if err != nil {
 		log.Fatal(err)
 	}
