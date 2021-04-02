@@ -2,7 +2,7 @@
 FROM docker.io/golang:1.16-alpine AS builder
 
 RUN mkdir /build
-COPY *.go /build/
+COPY . /build/
 WORKDIR /build
 ENV CGO_ENABLED=0 \
     GOOS=linux
@@ -14,6 +14,7 @@ RUN go mod init git.geraldwu.com/gerald/omgur &&\
 FROM docker.io/alpine:latest
 RUN apk --no-cache add ca-certificates
 COPY --from=builder /build/app .
+COPY --from=builder /build/templates ./templates
 
 USER nobody:nobody
 

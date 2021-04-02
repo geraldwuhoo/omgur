@@ -1,0 +1,17 @@
+<html>
+    <head>
+        <title>Album</title>
+        <style>
+            img {
+                max-width: 100%;
+                max-height: 100vh;
+                height: auto;
+            }
+        </style>
+    </head>
+    <body>
+    {{ range .Images }}
+        <img src="{{ . }}">
+    {{ end }}
+    </body>
+</html>
