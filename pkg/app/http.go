@@ -6,7 +6,7 @@ import (
 	"regexp"
 )
 
-func (a App) HTTPServer(w http.ResponseWriter, r *http.Request) {
+func (a *App) HTTPServer(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Serving page for %s", r.URL.Path)
 	uri := r.URL.Path[1:]
 

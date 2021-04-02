@@ -23,7 +23,7 @@ type Album struct {
 	Images      []Image
 }
 
-func (a App) AlbumHandler(w http.ResponseWriter, uri string) {
+func (a *App) AlbumHandler(w http.ResponseWriter, uri string) {
 	// Build GET request to Imgur API
 	client := &http.Client{
 		Timeout: time.Second * 10,

@@ -7,18 +7,6 @@ import (
 	"git.geraldwu.com/gerald/omgur/pkg/app"
 )
 
-type Image struct {
-	Title       string
-	Description string
-	Link        string
-}
-
-type Album struct {
-	Title       string
-	Description string
-	Images      []Image
-}
-
 func main() {
 	app, _ := app.CreateApp("Client-ID 546c25a59c58ad7")
 
