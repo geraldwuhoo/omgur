@@ -13,7 +13,8 @@ build:
   stage: build
   before_script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login --username $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+    - export FULL_IMAGE_NAME="$([ "$CI_COMMIT_BRANCH" = "master" ] && echo "$CI_REGISTRY_IMAGE" || echo "$CI_REGISTRY_IMAGE/$CI_COMMIT_BRANCH")"
   script:
-    - docker build -t $CI_REGISTRY_IMAGE:latest -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA .
-    - docker push $CI_REGISTRY_IMAGE:latest
-    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+    - docker build -t "$FULL_IMAGE_NAME:latest" -t "$FULL_IMAGE_NAME:$CI_COMMIT_SHORT_SHA" .
+    - docker push "$FULL_IMAGE_NAME:latest"
+    - docker push "$FULL_IMAGE_NAME:$CI_COMMIT_SHORT_SHA"

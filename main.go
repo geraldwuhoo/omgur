@@ -35,7 +35,9 @@ func HTTPServer(w http.ResponseWriter, r *http.Request) {
     // Determine if this is a direct i.imgur.com image
     directImage, err := regexp.MatchString(".*\\.(jpg|jpeg|png|gif|gifv|apng|tiff|mp4|mpeg|avi|webm)", uri)
     if err != nil {
-        log.Fatal(err)
+        log.Print(err)
+        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+        return
     }
 
     album, err := regexp.MatchString("a/.{7}", uri)
@@ -52,6 +54,7 @@ func HTTPServer(w http.ResponseWriter, r *http.Request) {
     } else {
         // Future proxying features not yet implemented
         http.Error(w, "501 Not Implemented", http.StatusNotImplemented)
+        return
     }
 }
 
@@ -59,7 +62,9 @@ func DirectImageHandler(w http.ResponseWriter, uri string) {
     // Get the image directly from i.imgur.com
     resp, err := http.Get(fmt.Sprintf("https://i.imgur.com/%v", uri))
     if err != nil {
-        log.Fatal(err)
+        log.Print(err)
+        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+        return
     }
     defer resp.Body.Close()
 
@@ -76,7 +81,9 @@ func DirectImageHandler(w http.ResponseWriter, uri string) {
     w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
 
     if _, err = io.Copy(w, resp.Body); err != nil {
-        log.Fatal(err)
+        log.Print(err)
+        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+        return
     }
 }
 
