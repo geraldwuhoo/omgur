@@ -22,8 +22,9 @@ type Image struct {
 }
 
 type Album struct {
-	PostTitle string
-	Images    []Image
+	Title       string
+	Description string
+	Images      []Image
 }
 
 func main() {
@@ -147,13 +148,21 @@ func AlbumHandler(w http.ResponseWriter, uri string) {
 	} else {
 		postTitle = data["title"].(string)
 	}
+	// Get post description (safely)
+	var postDesc string
+	if data["description"] == nil {
+		postDesc = ""
+	} else {
+		postDesc = data["description"].(string)
+	}
 	// Get images slice
 	images := data["images"].([]interface{})
 
 	// Struct to store the album details in for templating
 	album := Album{
-		PostTitle: postTitle,
-		Images:    []Image{},
+		Title:       postTitle,
+		Description: postDesc,
+		Images:      []Image{},
 	}
 	// Loop over the results, and add each album image to the data struct
 	for _, value := range images {

@@ -66,9 +66,10 @@
         </style>
     </head>
     <body>
-    {{ if .PostTitle }}
+    {{ if .Title }}
     <div class="responsive">
-        <h2>{{ .PostTitle }}</h2>
+        <h2>{{ .Title }}</h2>
+        <h4>{{ .Description }}</h4>
     </div>
     {{ end }}
 
