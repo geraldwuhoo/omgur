@@ -13,6 +13,8 @@ import (
 	"time"
 )
 
+var Authorization string = "Client-ID 546c25a59c58ad7"
+
 type Image struct {
 	Title       string
 	Description string
@@ -52,7 +54,7 @@ func HTTPServer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Determine if this is an imgur.com/a/ album
-	album, err := regexp.MatchString("a/.{7}", uri)
+	album, err := regexp.MatchString("a/.+", uri)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -108,7 +110,7 @@ func AlbumHandler(w http.ResponseWriter, uri string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	req.Header.Add("Authorization", "Client-ID 546c25a59c58ad7")
+	req.Header.Add("Authorization", Authorization)
 
 	// Execute GET request to get Album details
 	resp, err := client.Do(req)
