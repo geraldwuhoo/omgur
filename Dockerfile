@@ -8,15 +8,14 @@ ENV CGO_ENABLED=0 \
     GOOS=linux
 RUN go mod init git.geraldwu.com/gerald/omgur &&\
     go mod tidy &&\
-    go build -v -a -o app .
+    go build -v -a ./cmd/omgur
 
 # Clean image
 FROM docker.io/alpine:latest
 RUN apk --no-cache add ca-certificates
-COPY --from=builder /build/app .
-COPY --from=builder /build/templates ./templates
+COPY --from=builder /build .
 
 USER nobody:nobody
 
-CMD ["./app"]
+CMD ["./omgur"]
 EXPOSE 8080
