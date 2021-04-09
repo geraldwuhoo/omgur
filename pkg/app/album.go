@@ -55,6 +55,21 @@ func (a *App) AlbumHandler(w http.ResponseWriter, uri string) {
 		log.Fatal(err)
 	}
 
+	album := a.ParseAlbum(contents)
+
+	// Apply the extracted album to the template
+	t, err := template.ParseFiles("web/template/album.gohtml")
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = t.Execute(w, *album)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func (a *App) ParseAlbum(contents []byte) *Album {
+
 	// Unpack the JSON response into an unstructured Go struct
 	var result map[string]interface{}
 	json.Unmarshal([]byte(contents), &result)
@@ -79,7 +94,7 @@ func (a *App) AlbumHandler(w http.ResponseWriter, uri string) {
 	images := data["images"].([]interface{})
 
 	// Struct to store the album details in for templating
-	album := Album{
+	album := &Album{
 		Title:       postTitle,
 		Description: postDesc,
 		Images:      []Image{},
@@ -118,13 +133,5 @@ func (a *App) AlbumHandler(w http.ResponseWriter, uri string) {
 		})
 	}
 
-	// Apply the extracted album to the template
-	t, err := template.ParseFiles("web/template/album.gohtml")
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = t.Execute(w, album)
-	if err != nil {
-		log.Fatal(err)
-	}
+	return album
 }
