@@ -14,12 +14,13 @@ Inspired by the [Invidious](https://github.com/iv-org/invidious), [Nitter](https
 
 - Direct image loading via https://i.imgur.com/
 - Imgur album loading via https://imgur.com/a/
+- Imgur gallery loading via https://imgur.com/gallery/
 - Redis caching for images
 
 ## Roadmap
 
 - Imgur post loading via https://imgur.com/
-- Imgur gallery loading via https://imgur.com/gallery
+- Proper embedding of videos on albums/galleries (direct loading already works)
 
 ## Far-future roadmap
 
