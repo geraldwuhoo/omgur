@@ -40,11 +40,12 @@ func (a *App) DirectImageHandler(w http.ResponseWriter, uri string) {
 func (a *App) getImageFromCacheOrRemote(uri string) (*DirectImage, error) {
 	var directImage *DirectImage
 	var err error
+	var image string
 
 	// If we are using Redis, then go through the cache first
 	if a.Rdb != nil {
 		// Attempt to get from Redis cache
-		image, err := a.Rdb.Get(context.Background(), uri).Result()
+		image, err = a.Rdb.Get(context.Background(), uri).Result()
 
 		if err == redis.Nil {
 			// Get from remote if not in cache

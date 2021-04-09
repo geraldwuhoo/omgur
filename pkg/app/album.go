@@ -11,24 +11,16 @@ import (
 	"time"
 )
 
-type Image struct {
-	Title       string
-	Description string
-	Link        string
-}
-
-type Album struct {
-	Title       string
-	Description string
-	Images      []Image
-}
-
 func (a *App) AlbumHandler(w http.ResponseWriter, uri string) {
+	a.GetAlbum(w, uri, fmt.Sprintf("https://api.imgur.com/3/album/%v", uri[2:]))
+}
+
+func (a *App) GetAlbum(w http.ResponseWriter, uri string, endpoint string) {
 	// Build GET request to Imgur API
 	client := &http.Client{
 		Timeout: time.Second * 10,
 	}
-	req, err := http.NewRequest("GET", fmt.Sprintf("https://api.imgur.com/3/album/%v", uri[2:]), nil)
+	req, err := http.NewRequest("GET", endpoint, nil)
 	if err != nil {
 		log.Fatal(err)
 	}

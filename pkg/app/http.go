@@ -30,12 +30,21 @@ func (a *App) HTTPServer(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
+	// Determine if this is an imgur.com/gallery/ gallery
+	gallery, err := regexp.MatchString("gallery/.+", uri)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	if directImage {
 		// This is a direct image, so use the direct image handler
 		a.DirectImageHandler(w, uri)
 	} else if album {
 		// This is an album, so use the album handler
 		a.AlbumHandler(w, uri)
+	} else if gallery {
+		// This is a gallery, so use the gallery handler
+		a.GalleryHandler(w, uri)
 	} else {
 		// Future proxying features not yet implemented
 		http.Error(w, "501 Not Implemented", http.StatusNotImplemented)
