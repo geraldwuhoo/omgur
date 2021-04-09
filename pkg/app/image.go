@@ -49,7 +49,7 @@ func (a *App) getImageFromCacheOrRemote(uri string) (*DirectImage, error) {
 
 		if err == redis.Nil {
 			// Get from remote if not in cache
-			log.Printf("%v Redis cache miss. Pulling from remote.", uri)
+			log.Printf("%v: Redis cache miss. Pulling from remote.", uri)
 			directImage, err = a.getImageFromRemote(uri)
 		} else if err != nil {
 			log.Print(err.Error())
@@ -59,7 +59,7 @@ func (a *App) getImageFromCacheOrRemote(uri string) (*DirectImage, error) {
 			}
 		} else {
 			// Unmarshal the Redis object to a DirectImage struct
-			log.Printf("%v Redis cache hit. Serving from Redis.", uri)
+			log.Printf("%v: Redis cache hit. Serving from Redis.", uri)
 			directImage = &DirectImage{}
 			if err := json.Unmarshal([]byte(image), directImage); err != nil {
 				log.Printf("Error unmarshalling from Redis: %v\n", err.Error())
