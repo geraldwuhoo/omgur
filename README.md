@@ -1,5 +1,7 @@
 # omgur
 
+[![pipeline status](https://git.geraldwu.com/gerald/omgur/badges/master/pipeline.svg)](https://git.geraldwu.com/gerald/omgur/-/commits/master) 
+
 Omgur is a free and open-source alternative Imgur front-end focused on privacy.
 
 Inspired by the [Invidious](https://github.com/iv-org/invidious), [Nitter](https://github.com/zedeus/nitter), and [Teddit](https://github.com/teddit-net/teddit) projects.
@@ -10,22 +12,19 @@ Inspired by the [Invidious](https://github.com/iv-org/invidious), [Nitter](https
 - Lightweight
 - Self-hostable
 
-## Current Features
+## Features roadmap
 
-- Direct image loading via https://i.imgur.com/
-- Imgur album loading via https://imgur.com/a/
-- Imgur gallery loading via https://imgur.com/gallery/
-- Redis caching for images
-
-## Roadmap
-
-- Imgur post loading via https://imgur.com/
-- Proper embedding of videos on albums/galleries (direct loading already works)
+- [x] Direct image loading via https://i.imgur.com/
+- [x] Imgur album loading via https://imgur.com/a/
+- [x] Imgur gallery loading via https://imgur.com/gallery/
+- [x] Redis caching for images
+- [ ] Imgur post loading via https://imgur.com/
+- [ ] Proper embedding of videos on albums/galleries (direct loading already works)
 
 ## Far-future roadmap
 
-- Render comments on Imgur posts
-- Imgur frontpage loading
+- [ ] Render comments on Imgur posts
+- [ ] Frontpage imgur url form
 
 ## Installation
 

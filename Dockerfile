@@ -11,7 +11,7 @@ RUN go mod init git.geraldwu.com/gerald/omgur &&\
     go build -v -a ./cmd/omgur
 
 # Clean image
-FROM docker.io/alpine:latest
+FROM docker.io/alpine:3.13
 RUN apk --no-cache add ca-certificates
 COPY --from=builder /build/omgur .
 COPY --from=builder /build/web ./web
