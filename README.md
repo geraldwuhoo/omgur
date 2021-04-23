@@ -18,8 +18,9 @@ Inspired by the [Invidious](https://github.com/iv-org/invidious), [Nitter](https
 - [x] Imgur album loading via https://imgur.com/a/
 - [x] Imgur gallery loading via https://imgur.com/gallery/
 - [x] Redis caching for images
-- [ ] Imgur post loading via https://imgur.com/
+- [x] Imgur post loading via https://imgur.com/
 - [ ] Proper embedding of videos on albums/galleries (direct loading already works)
+- [ ] Mock tests of the functionality
 
 ## Far-future roadmap
 
