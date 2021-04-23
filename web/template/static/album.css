@@ -1,0 +1,58 @@
+body {
+    font: 1.2em/1.62 sans-serif;
+}
+
+h1, h2, h3 {
+    line-height: 1.2;
+}
+
+div.gallery {
+    border: 1px solid #ccc;
+}
+
+div.gallery:hover {
+    border: 1px solid #777;
+}
+
+div.gallery img {
+    width: 100%;
+    height: auto;
+}
+
+div.title {
+    padding: 15px;
+    text-align: center;
+}
+
+div.desc {
+    padding: 15px;
+    text-align: center;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+.responsive {
+    width: 100%;
+    max-width: 900px;
+    margin: 10px auto;
+}
+
+@media only screen and (max-width: 900px) {
+    .responsive {
+        max-width: 600px;
+    }
+}
+
+@media only screen and (max-width: 600px) {
+    .responsive {
+        max-width: 100%;
+    }
+}
+
+.clearfix:after {
+    content: "";
+    display: table;
+    clear: both;
+}
