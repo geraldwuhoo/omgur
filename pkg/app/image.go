@@ -1,143 +1,73 @@
 package app
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
-
-	"github.com/go-redis/redis/v8"
+	"strings"
+	"time"
 )
 
-type DirectImage struct {
-	Contents      []byte
-	ContentLength string
-	ContentType   string
-}
-
-func (a *App) DirectImageHandler(w http.ResponseWriter, uri string) {
-	// Attempt to get image information from Cache or Remote
-	image, err := a.getImageFromCacheOrRemote(uri)
-	if err != nil {
-		re, _ := err.(*RequestError)
-		http.Error(w, re.Error(), re.StatusCode)
-		return
+func (a *App) ImageHandler(w http.ResponseWriter, r *http.Request, uri string) {
+	endpoint := fmt.Sprintf("https://api.imgur.com/3/image/%v", uri)
+	// Build GET request to Imgur API
+	client := &http.Client{
+		Timeout: time.Second * 10,
 	}
-	// Successfully got image, so return the proper response as a direct image
-	w.Header().Set("Content-Length", image.ContentLength)
-	w.Header().Set("Content-Type", image.ContentType)
-
-	_, err = w.Write(image.Contents)
+	req, err := http.NewRequest("GET", endpoint, nil)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		log.Fatal(err)
 	}
-}
+	req.Header.Add("Authorization", a.Authorization)
 
-func (a *App) getImageFromCacheOrRemote(uri string) (*DirectImage, error) {
-	var directImage *DirectImage
-	var err error
-	var image string
-
-	// If we are using Redis, then go through the cache first
-	if a.Rdb != nil {
-		// Attempt to get from Redis cache
-		image, err = a.Rdb.Get(context.Background(), uri).Result()
-
-		if err == redis.Nil {
-			// Get from remote if not in cache
-			log.Printf("%v: Redis cache miss. Pulling from remote.", uri)
-			directImage, err = a.getImageFromRemote(uri)
-		} else if err != nil {
-			log.Print(err.Error())
-			return nil, &RequestError{
-				StatusCode: http.StatusInternalServerError,
-				Err:        errors.New(uri),
-			}
-		} else {
-			// Unmarshal the Redis object to a DirectImage struct
-			log.Printf("%v: Redis cache hit. Serving from Redis.", uri)
-			directImage = &DirectImage{}
-			if err := json.Unmarshal([]byte(image), directImage); err != nil {
-				log.Printf("Error unmarshalling from Redis: %v\n", err.Error())
-				return nil, &RequestError{
-					StatusCode: http.StatusInternalServerError,
-					Err:        errors.New(uri),
-				}
-			}
-		}
-	} else {
-		directImage, err = a.getImageFromRemote(uri)
-	}
-
-	return directImage, err
-}
-
-func (a *App) getImageFromRemote(uri string) (*DirectImage, error) {
-	// Get the image directly from i.imgur.com
-	resp, err := http.Get(fmt.Sprintf("https://i.imgur.com/%v", uri))
-
+	// Execute GET request to get image details
+	resp, err := client.Do(req)
 	if err != nil {
-		log.Print(err)
-		return nil, &RequestError{
-			StatusCode: http.StatusInternalServerError,
-			Err:        errors.New(uri),
-		}
+		log.Fatal(err)
 	}
 	defer resp.Body.Close()
 
 	// If we were unable to get this image for any reason, then respond as such
 	if resp.StatusCode != 200 {
-		log.Printf("Error %v looking up %v\n", resp.StatusCode, uri)
-		return nil, &RequestError{
-			StatusCode: resp.StatusCode,
-			Err:        errors.New(uri),
-		}
+		output := fmt.Sprintf("Error %v looking up %v\n", resp.StatusCode, uri)
+		log.Print(output)
+		http.Error(w, output, resp.StatusCode)
+		return
 	}
 
-	// Get the image contents, with error handling
+	// Get contents of the API request
 	contents, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Print(err)
-		return nil, &RequestError{
-			StatusCode: http.StatusInternalServerError,
-			Err:        errors.New(uri),
-		}
+		log.Fatal(err)
 	}
 
-	// Construct image
-	image := &DirectImage{
-		Contents:      contents,
-		ContentLength: fmt.Sprint(resp.ContentLength),
-		ContentType:   resp.Header.Get("Content-Type"),
-	}
-	log.Printf("Got %v from remote\n", uri)
-
-	// Marshall the DirectImage struct to byte array
-	imageMarshall, err := json.Marshal(image)
+	image, err := a.ParseImage(contents)
 	if err != nil {
-		log.Print(err.Error())
-		return nil, &RequestError{
-			StatusCode: http.StatusInternalServerError,
-			Err:        errors.New(uri),
-		}
+		log.Printf("error looking up %v\n", uri)
 	}
+	log.Printf("Redirecting %v to %v\n", uri, image)
+	http.Redirect(w, r, image, http.StatusSeeOther)
+}
 
-	// Place the marshalled struct into Redis with the uri as the key, if applicable
-	if a.Rdb != nil {
-		if err := a.Rdb.Set(context.Background(), uri, imageMarshall, 0).Err(); err != nil {
-			log.Printf("Error setting Redis cache: %v\n", err.Error())
-			return nil, &RequestError{
-				StatusCode: http.StatusInternalServerError,
-				Err:        errors.New(uri),
-			}
-		}
-		log.Printf("Set %v in Redis cache\n", uri)
+func (a *App) ParseImage(contents []byte) (string, error) {
+	// Unpack to JSON response into an unstructured Go struct
+	var result map[string]interface{}
+	json.Unmarshal([]byte(contents), &result)
+
+	// Get parent data in JSON
+	data := result["data"].(map[string]interface{})
+	// Get image link (safely)
+	var link string
+	if data["link"] == nil {
+		return "", errors.New("error")
 	}
+	link = data["link"].(string)
+	log.Printf("link: %v\n", link)
 
-	// Construct and return this direct image
-	return image, nil
+	// Parse the uri
+	link = link[strings.LastIndex(link, "/"):]
+	return link, nil
 }
