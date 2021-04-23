@@ -17,7 +17,7 @@ func (a *App) HTTPServer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Determine if this is a direct i.imgur.com image
-	directImage, err := regexp.MatchString(".*\\.(jpg|jpeg|png|gif|gifv|apng|tiff|mp4|mpeg|avi|webm)", uri)
+	directImage, err := regexp.MatchString(`.*\.(jpg|jpeg|png|gif|gifv|apng|tiff|mp4|mpeg|avi|webm)`, uri)
 	if err != nil {
 		log.Print(err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -25,13 +25,13 @@ func (a *App) HTTPServer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Determine if this is an imgur.com/a/ album
-	album, err := regexp.MatchString("a/.+", uri)
+	album, err := regexp.MatchString(`a/.+`, uri)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// Determine if this is an imgur.com/gallery/ gallery
-	gallery, err := regexp.MatchString("gallery/.+", uri)
+	gallery, err := regexp.MatchString(`gallery/.+`, uri)
 	if err != nil {
 		log.Fatal(err)
 	}
