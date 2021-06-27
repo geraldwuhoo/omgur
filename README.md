@@ -19,7 +19,7 @@ Inspired by the [Invidious](https://github.com/iv-org/invidious), [Nitter](https
 - [x] Imgur gallery loading via https://imgur.com/gallery/
 - [x] Imgur post loading via https://imgur.com/
 - [x] Redis caching for images
-- [ ] Proper embedding of videos on albums/galleries (direct loading already works)
+- [x] Proper embedding of videos on albums/galleries (direct loading already works)
 - [ ] Mock tests of the functionality
 
 ## Far-future roadmap
@@ -40,7 +40,7 @@ docker-compose up
 
 Omgur should now be running at http://localhost:8080.
 
-Prebuilt images are also available at `registry.geraldwu.com/gerald/omgur:latest`. See https://git.geraldwu.com/gerald/omgur/container_registry for all images and tags.
+Prebuilt images are also available at `registry.geraldwu.com/gerald/omgur:latest` and `registry.gitlab.com/98wug/omgur:latest`.
 
 ### Manual
 

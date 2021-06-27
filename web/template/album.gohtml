@@ -21,7 +21,15 @@
             <div class="title">{{ .Title }}</div>
             {{ end }}
 
-            <a target="_blank" href="{{ .Link }}"><img src="{{ .Link }}"></a>
+            {{ if .Video }}
+            <video width=100% controls autoplay muted>
+                <source src="{{ .Link }}">
+            </video>
+            {{ else }}
+            <a target="_blank" href="{{ .Link }}">
+                <img src="{{ .Link }}">
+            </a>
+            {{ end }}
 
             {{ if .Description }}
             <div class="desc">{{ .Description }}</div>

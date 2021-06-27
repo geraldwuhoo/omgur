@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"regexp"
 	"strings"
 	"text/template"
 	"time"
@@ -91,6 +92,10 @@ func (a *App) ParseAlbum(contents []byte) *Album {
 		Description: postDesc,
 		Images:      []Image{},
 	}
+
+	// Compile the regexp for matching video
+	videoRegExp := regexp.MustCompile(`.*\.(mp4|mpeg|avi|webm|ogg)`)
+
 	// Loop over the results, and add each album image to the data struct
 	for _, value := range images {
 		// Assert type of the image JSON data
@@ -117,11 +122,18 @@ func (a *App) ParseAlbum(contents []byte) *Album {
 		link = link[strings.LastIndex(link, "/"):]
 		log.Printf("link: %v\n", link)
 
+		// Determine if this is a video
+		video := videoRegExp.MatchString(link)
+		if video {
+			log.Printf("%v detected as video", link)
+		}
+
 		// Add this image to the overall data
 		album.Images = append(album.Images, Image{
 			Link:        link,
 			Title:       title,
 			Description: description,
+			Video:       video,
 		})
 	}
 
