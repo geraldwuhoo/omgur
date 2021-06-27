@@ -26,6 +26,7 @@ Inspired by the [Invidious](https://github.com/iv-org/invidious), [Nitter](https
 
 - [ ] Render comments on Imgur posts
 - [ ] Frontpage imgur url form
+- [ ] Public API endpoints
 
 ## Installation
 
