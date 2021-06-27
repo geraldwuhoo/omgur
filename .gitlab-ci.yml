@@ -3,18 +3,66 @@ image: docker:20
 variables:
   DOCKER_TLS_CERTDIR: "/certs"
 
-services:
-  - docker:20-dind
+stages:
+  - build
+  - release
 
-before_script:
-  - docker info
+.build_docker: &build_docker
+  stage: build
+  services:
+    - docker:20-dind
+  before_script:
+    - docker info
+    - echo "$CI_REGISTRY_PASSWORD" | docker login --username $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
 
 build:
-  stage: build
-  before_script:
-    - echo "$CI_REGISTRY_PASSWORD" | docker login --username $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
-    - export FULL_IMAGE_NAME="$([ "$CI_COMMIT_BRANCH" = "master" ] && echo "$CI_REGISTRY_IMAGE" || echo "$CI_REGISTRY_IMAGE/$CI_COMMIT_BRANCH")"
+  <<: *build_docker
   script:
-    - docker build -t "$FULL_IMAGE_NAME:latest" -t "$FULL_IMAGE_NAME:$CI_COMMIT_SHORT_SHA" .
-    - docker push "$FULL_IMAGE_NAME:latest"
-    - docker push "$FULL_IMAGE_NAME:$CI_COMMIT_SHORT_SHA"
+    - docker build -t "$CI_REGISTRY_IMAGE:latest" -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA" .
+    - docker push "$CI_REGISTRY_IMAGE:latest"
+    - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA"
+  except:
+    - tags
+
+build_docker_tag:
+  <<: *build_docker
+  script:
+    - docker build -t "$CI_REGISTRY_IMAGE:latest" -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_TAG" .
+    - docker push "$CI_REGISTRY_IMAGE:latest"
+    - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_TAG"
+  only:
+    - tags
+
+build_binary_tag:
+  stage: build
+  image: golang:1.16
+  before_script:
+    - go version
+  script:
+    - go mod init git.geraldwu.com/gerald/omgur
+    - go mod tidy
+    - go build -v -a ./cmd/omgur
+  artifacts:
+    paths:
+      - omgur
+  only:
+    - tags
+
+release:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  needs:
+    - build_binary_tag
+  script:
+    - echo "Creating release for $CI_COMMIT_TAG"
+  release:
+    name: "Release $CI_COMMIT_TAG"
+    description: './release-notes/$CI_COMMIT_TAG/CHANGELOG.md'
+    tag_name: "$CI_COMMIT_TAG"
+    ref: "$CI_COMMIT_TAG"
+    assets:
+      links:
+        - name: '$CI_PROJECT_NAME-linux'
+          url: '$CI_PROJECT_URL/-/jobs/artifacts/$CI_COMMIT_TAG/raw/$CI_PROJECT_NAME?job=build_binary_tag'
+  only:
+    - tags
