@@ -1,5 +1,5 @@
 # Builder
-FROM docker.io/golang:1.16-alpine AS builder
+FROM docker.io/golang:1.17-alpine AS builder
 
 RUN mkdir /build
 COPY . /build/
