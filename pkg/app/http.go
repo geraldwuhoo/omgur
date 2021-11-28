@@ -53,7 +53,7 @@ func (a *App) HTTPServer(w http.ResponseWriter, r *http.Request) {
 	} else if gallery {
 		// This is a gallery, so use the gallery handler
 		log.Print("Handling gallery")
-		a.GalleryHandler(w, uri)
+		a.GalleryHandler(w, r, uri)
 	} else if image {
 		// This is an image, so use the image handler
 		log.Print("Handling image")
