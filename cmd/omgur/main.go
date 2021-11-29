@@ -25,9 +25,9 @@ func main() {
 	    return value
 	}
 
-	port:=getenv("PORT","8080")
-	log.Print("Starting webserver on "+port)
-	if err := http.ListenAndServe(":"+port, nil); err != nil {
+	address:=getenv("ADDRESS",":8080")
+	log.Print("Starting webserver on "+address)
+	if err := http.ListenAndServe(address, nil); err != nil {
 		log.Fatal(err)
 	}
 }
