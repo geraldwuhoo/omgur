@@ -10,11 +10,15 @@ import (
 	"strings"
 	"text/template"
 	"time"
+	"embed"
 )
 
 func (a *App) AlbumHandler(w http.ResponseWriter, uri string) {
 	a.GetAlbum(w, uri, fmt.Sprintf("https://api.imgur.com/3/album/%v", uri[2:]))
 }
+
+//go:embed web
+var content embed.FS
 
 func (a *App) GetAlbum(w http.ResponseWriter, uri string, endpoint string) {
 	// Build GET request to Imgur API
@@ -50,8 +54,9 @@ func (a *App) GetAlbum(w http.ResponseWriter, uri string, endpoint string) {
 
 	album := a.ParseAlbum(contents)
 
+
 	// Apply the extracted album to the template
-	t, err := template.ParseFiles("web/template/album.gohtml")
+	t, err := template.ParseFS(content,"web/template/album.gohtml")
 	if err != nil {
 		log.Fatal(err)
 	}
