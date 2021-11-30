@@ -14,7 +14,6 @@ RUN go mod init git.geraldwu.com/gerald/omgur &&\
 FROM docker.io/alpine:3.13
 RUN apk --no-cache add ca-certificates
 COPY --from=builder /build/omgur .
-COPY --from=builder /build/web ./web
 
 USER nobody:nobody
 

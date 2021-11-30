@@ -1,6 +1,7 @@
 package app
 
 import (
+	"embed"
 	"fmt"
 	"os"
 
@@ -10,7 +11,11 @@ import (
 type App struct {
 	Authorization string
 	Rdb           *redis.Client
+	Content       *embed.FS
 }
+
+//go:embed web
+var f embed.FS
 
 func CreateApp(authorization string) (*App, error) {
 	// Create new app struct
@@ -34,6 +39,9 @@ func CreateApp(authorization string) (*App, error) {
 			DB:       0,
 		})
 	}
+
+	// Create pointer to the embedded web files
+	app.Content = &f
 
 	return app, nil
 }

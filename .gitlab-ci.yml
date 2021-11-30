@@ -35,7 +35,7 @@ build_docker_tag:
 
 build_binary_tag:
   stage: build
-  image: golang:1.16
+  image: golang:1.17
   before_script:
     - go version
   script:

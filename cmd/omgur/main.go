@@ -1,33 +1,32 @@
 package main
 
 import (
+	"fmt"
+	"io/fs"
 	"log"
 	"net/http"
 	"os"
-	"git.geraldwu.com/gerald/omgur/pkg/app"
-	"embed"
-)
 
-//go:embed *.css
-var content embed.FS
+	"git.geraldwu.com/gerald/omgur/pkg/app"
+)
 
 func main() {
 	app, _ := app.CreateApp("Client-ID 546c25a59c58ad7")
-
-	http.HandleFunc("/", app.HTTPServer)
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.FS(content))))
-
-	getenv:=func (key, fallback string) string {
-	    value := os.Getenv(key)
-	    if len(value) == 0 {
-	        return fallback
-	    }
-	    return value
+	fsStatic, err := fs.Sub(app.Content, "web/template/static")
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	address:=getenv("ADDRESS",":8080")
-	log.Print("Starting webserver on "+address)
-	if err := http.ListenAndServe(address, nil); err != nil {
+	http.HandleFunc("/", app.HTTPServer)
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.FS(fsStatic))))
+
+	port, ok := os.LookupEnv("OMGUR_LISTEN_PORT")
+	if !ok {
+		port = "8080"
+	}
+
+	log.Printf("Starting webserver on :%v", port)
+	if err := http.ListenAndServe(fmt.Sprintf(":%v", port), nil); err != nil {
 		log.Fatal(err)
 	}
 }
