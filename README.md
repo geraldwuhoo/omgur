@@ -60,4 +60,4 @@ redis-server
 ./omgur
 ```
 
-Omgur should now be running at http://localhost:8080.
+Omgur should now be running at http://localhost:8080. It is possible to change the listening port with the `OMGUR_LISTEN_PORT` environment variable if you already have services using the default port `8080`.
