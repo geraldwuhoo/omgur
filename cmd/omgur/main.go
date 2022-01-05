@@ -24,13 +24,11 @@ func main() {
 	if !ok {
 		port = "8080"
 	}
-	
+
 	address, ok := os.LookupEnv("OMGUR_LISTEN_ADDRESS")
-        if !ok {
-                address = ""
-        }
-	
-	
+	if !ok {
+		address = ""
+	}
 
 	log.Printf("Starting webserver on %v:%v", address, port)
 	if err := http.ListenAndServe(fmt.Sprintf("%v:%v", address, port), nil); err != nil {
