@@ -41,7 +41,7 @@ docker-compose up
 
 Omgur should now be running at http://localhost:8080.
 
-Prebuilt images are also available at `registry.geraldwu.com/gerald/omgur:latest` and `registry.gitlab.com/98wug/omgur:latest`.
+Prebuilt images are also available at `registry.geraldwu.com/gerald/omgur:latest` and `registry.gitlab.com/geraldwuhoo/omgur:latest`.
 
 ### Manual
 
