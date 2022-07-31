@@ -1,17 +1,16 @@
 # Builder
-FROM docker.io/golang:1.17-alpine3.15 AS builder
+FROM docker.io/golang:1.18-alpine3.16 AS builder
 
-RUN mkdir /build
-COPY . /build/
 WORKDIR /build
+COPY go.mod go.sum /build/
 ENV CGO_ENABLED=0 \
     GOOS=linux
-RUN go mod init git.geraldwu.com/gerald/omgur &&\
-    go mod tidy &&\
-    go build -v -a ./cmd/omgur
+RUN go mod download
+COPY . /build/
+RUN go build -ldflags "-w -s" -trimpath ./cmd/omgur
 
 # Clean image
-FROM docker.io/alpine:3.15
+FROM docker.io/alpine:3.16
 RUN apk --no-cache add ca-certificates
 COPY --from=builder /build/omgur .
 

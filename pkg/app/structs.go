@@ -5,6 +5,8 @@ type Image struct {
 	Description string
 	Link        string
 	Video       bool
+	Width       float64
+	Height      float64
 }
 
 type Album struct {

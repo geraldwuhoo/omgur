@@ -27,7 +27,7 @@
             </video>
             {{ else }}
             <a target="_blank" href="{{ .Link }}">
-                <img src="{{ .Link }}">
+                <img src="{{ .Link }}" width="{{ .Width }}" height="{{ .Height }}" loading="lazy">
             </a>
             {{ end }}
 
