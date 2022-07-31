@@ -134,6 +134,8 @@ func (a *App) ParseAlbum(contents []byte) *Album {
 			Title:       title,
 			Description: description,
 			Video:       video,
+			Width:       image["width"].(float64),
+			Height:      image["height"].(float64),
 		})
 	}
 
