@@ -1,6 +1,6 @@
 # omgur
 
-[![pipeline status](https://git.geraldwu.com/gerald/omgur/badges/master/pipeline.svg)](https://git.geraldwu.com/gerald/omgur/-/commits/master) 
+[![pipeline status](https://gitlab.wuhoo.xyz/jerry/omgur/badges/master/pipeline.svg)](https://gitlab.wuhoo.xyz/jerry/omgur/-/commits/master)
 
 Omgur is a free and open-source alternative Imgur front-end focused on privacy.
 
@@ -41,7 +41,7 @@ docker-compose up
 
 Omgur should now be running at http://localhost:8080.
 
-Prebuilt images are also available at `registry.geraldwu.com/gerald/omgur:latest` and `registry.gitlab.com/geraldwuhoo/omgur:latest`.
+Prebuilt images are also available at `registry.wuhoo.xyz/jerry/omgur:latest` and `registry.gitlab.com/geraldwuhoo/omgur:latest`.
 
 ### Manual
 
@@ -50,7 +50,7 @@ Prebuilt images are also available at `registry.geraldwu.com/gerald/omgur:latest
 Caches images from imgur – highly recommended.
 1. Clone and set up the repository.
 ```
-git clone https://git.geraldwu.com/gerald/omgur
+git clone https://wuhoo.xyz/jerry/gerald/omgur
 cd omgur
 go mod init git.geraldwu.com/gerald/omgur
 go mod tidy
