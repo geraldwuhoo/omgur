@@ -71,11 +71,10 @@ push:release:
 
 build_binary_tag:
   stage: build
-  image: golang:1.17
+  image: golang:1.18
   before_script:
     - go version
   script:
-    - go mod init git.geraldwu.com/gerald/omgur
     - go mod tidy
     - go build -v -a ./cmd/omgur
   artifacts:
