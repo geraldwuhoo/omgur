@@ -1,5 +1,5 @@
 # Builder
-FROM docker.io/golang:1.18-alpine3.16 AS builder
+FROM docker.io/golang:1.19-alpine3.16 AS builder
 
 WORKDIR /build
 COPY go.mod go.sum /build/
