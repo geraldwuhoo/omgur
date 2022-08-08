@@ -1,5 +1,5 @@
 # Builder
-FROM docker.io/golang:1.19-alpine3.16 AS builder
+FROM docker.io/library/golang:1.19-alpine3.16 AS builder
 
 WORKDIR /build
 COPY go.mod go.sum /build/
@@ -10,7 +10,7 @@ COPY . /build/
 RUN go build -ldflags "-w -s" -trimpath ./cmd/omgur
 
 # Clean image
-FROM docker.io/alpine:3.16
+FROM docker.io/library/alpine:3.16
 RUN apk --no-cache add ca-certificates
 COPY --from=builder /build/omgur .
 
