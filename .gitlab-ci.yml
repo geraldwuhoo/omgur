@@ -71,7 +71,7 @@ push:release:
 
 build_binary_tag:
   stage: build
-  image: golang:1.19
+  image: golang:1.23
   before_script:
     - go version
   script:
