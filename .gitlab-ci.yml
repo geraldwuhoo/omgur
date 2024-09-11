@@ -9,7 +9,7 @@ variables:
 build:
   stage: build
   image:
-    name: gcr.io/kaniko-project/executor:v1.9.1-debug
+    name: gcr.io/kaniko-project/executor:v1.23.2-debug
     entrypoint: [""]
   before_script:
     - mkdir -p /kaniko/.docker
