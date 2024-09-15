@@ -10,7 +10,7 @@ COPY . /build/
 RUN go build -ldflags "-w -s" -trimpath ./cmd/omgur
 
 # Clean image
-FROM docker.io/library/alpine:3.16
+FROM docker.io/library/alpine:3.20
 RUN apk --no-cache add ca-certificates
 COPY --from=builder /build/omgur .
 
